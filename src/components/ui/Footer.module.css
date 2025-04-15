@@ -1,0 +1,32 @@
+.Footer {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  z-index: 20;
+  border-top: 1px solid transparent;
+  background: #ececec70;
+  backdrop-filter: blur(2rem);
+  -webkit-backdrop-filter: blur(2rem);
+  font-size: 1.125rem;
+  transition: border 0.2s ease;
+}
+
+[data-scrollable="true"] .Footer {
+  border-top: 1px solid #fff;
+}
+
+@keyframes wave {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-wave {
+  animation: wave 1.2s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  opacity: 1;
+}

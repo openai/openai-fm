@@ -1,0 +1,38 @@
+.Track {
+  position: relative;
+  width: 42px;
+  height: 25px;
+  border-radius: 100px;
+  box-shadow: inset 0 1px 2px #00000026, 0 1px 0 0 #ffffff40;
+  background: rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+  user-select: none;
+}
+
+.Track[data-state="checked"] {
+  background: var(--primary);
+}
+
+.Thumb {
+  display: block;
+  width: 21px;
+  height: 21px;
+  transform: translateX(2px);
+  border-radius: 100%;
+
+  transition: transform 0.25s ease;
+  will-change: transform;
+
+  background: #f4f4f4;
+  box-shadow: inset 1px 1px 1px #fff, inset -1px -1px 0px #0000001a,
+    0.444584px 0.444584px 0.628737px -0.75px #00000042,
+    1.21072px 1.21072px 1.71222px -1.5px #0000003f,
+    2.6583px 2.6583px 3.75941px -2.25px #0000003b,
+    5.90083px 5.90083px 8.34503px -3px #00000031,
+    10px 10px 21.2132px -3.75px #0000000e;
+}
+
+.Track[data-state="checked"] .Thumb {
+  transform: translateX(19px);
+}
