@@ -9,6 +9,7 @@ import s from "./DevMode.module.css";
 import { appStore } from "@/lib/store";
 import { getCodeSnippet } from "../../lib/codeSnippet";
 import clsx from "clsx";
+import { useState, useEffect } from "react";
 
 const fmTheme = createTheme({
   theme: "light",
@@ -41,12 +42,56 @@ const fmTheme = createTheme({
   ],
 });
 
+// Dark mode CodeMirror theme, transparent background to use CSS bg-screen (dark) background
+const fmDarkTheme = createTheme({
+  theme: "dark",
+  settings: {
+    background: "transparent",
+    backgroundImage: "",
+    foreground: "#e0e0e0",
+    caret: "#5d00ff",
+    selection: "#5d00ff33",
+    selectionMatch: "#5d00ff33",
+    lineHighlight: "#44444444",
+    gutterBackground: "transparent",
+    gutterForeground: "transparent",
+  },
+  // Syntax highlighting styles (same as light theme)
+  styles: [
+    { tag: t.comment, color: "#66666699" },
+    { tag: t.variableName, color: "#171717" },
+    { tag: [t.string, t.special(t.brace)], color: "#C58041" },
+    { tag: t.number, color: "#C58041" },
+    { tag: t.bool, color: "#C58041" },
+    { tag: t.null, color: "#C58041" },
+    { tag: t.keyword, color: "#F64700" },
+    { tag: t.operator, color: "#aaaaaa" },
+    { tag: t.className, color: "#F64700" },
+    { tag: t.definition(t.typeName), color: "#aaaaaa" },
+    { tag: t.typeName, color: "#aaaaaa" },
+    { tag: t.angleBracket, color: "#00A67D" },
+    { tag: t.tagName, color: "#00A67D" },
+    { tag: t.attributeName, color: "#00A67D" },
+  ],
+});
+
 export const DevMode: React.FC = () => {
   const voice = appStore.useState((state) => state.voice);
   const input = appStore.useState((state) => state.input);
   const prompt = appStore.useState((state) => state.prompt);
   const height = "563px";
   const codeView = appStore.useState((state) => state.codeView);
+  // Track dark mode to switch CodeMirror theme
+  const [isDark, setIsDark] = useState(
+    document.documentElement.classList.contains("dark")
+  );
+  useEffect(() => {
+    const obs = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    });
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
 
   const editorTheme = EditorView.theme({
     // Only highlight the line if the editor is in a focused state.
@@ -89,7 +134,7 @@ export const DevMode: React.FC = () => {
             height={height}
             extensions={[python(), editorTheme]}
             basicSetup={setup}
-            theme={fmTheme}
+            theme={isDark ? fmDarkTheme : fmTheme}
           />
         </div>
         <div id="js" className={clsx(s.Container, "bg-screen")}>
@@ -98,7 +143,7 @@ export const DevMode: React.FC = () => {
             height={height}
             extensions={[javascript(), editorTheme]}
             basicSetup={setup}
-            theme={fmTheme}
+            theme={isDark ? fmDarkTheme : fmTheme}
           />
         </div>
         <div id="curl" className={clsx(s.Container, "bg-screen")}>
@@ -107,7 +152,7 @@ export const DevMode: React.FC = () => {
             height={height}
             extensions={[editorTheme]}
             basicSetup={setup}
-            theme={fmTheme}
+            theme={isDark ? fmDarkTheme : fmTheme}
           />
         </div>
       </Block>

@@ -1,10 +1,54 @@
 @import "tailwindcss";
 
+/* Global CSS variables for theming */
 :root {
+  /* Core colors */
   --background: #ececec;
   --foreground: #222;
   --primary: #ff4a00;
   --page-max-width: 1300px;
+  /* Derived colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-screen: #f3f3f3;
+  --color-black-10: rgba(0, 0, 0, 0.1);
+  --color-black-50: rgba(0, 0, 0, 0.5);
+  /* Lighting settings: color (R,G,B) and opacity */
+  --lighting-color: 248,248,248;
+  --lighting-opacity: 1;
+  --lighting-scale: 1;
+}
+
+/* Dark mode overrides */
+html.dark {
+  --background: #1e1e1e;
+  --foreground: #e0e0e0;
+  --color-screen: #2a2a2a;
+  --color-black-10: rgba(255, 255, 255, 0.1);
+  --color-black-50: rgba(255, 255, 255, 0.5);
+  /* Lighting settings override for dark mode */
+  --lighting-color: 255,255,255;
+  --lighting-opacity: 0.1;
+  --lighting-scale: 1;
+}
+/* Utility class for panel/input backgrounds, uses theme variable */
+.bg-screen {
+  background-color: var(--color-screen) !important;
+  position: relative;
+}
+.bg-screen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% - 1px);
+  height: calc(100% - 1px);
+  /* Panel/input border highlight: intensity scaled by lighting slider */
+  border-top: 1px solid rgba(var(--lighting-color), calc(var(--lighting-opacity) * var(--lighting-scale)));
+  border-left: 1px solid rgba(var(--lighting-color), calc(var(--lighting-opacity) * var(--lighting-scale)));
+  border-radius: var(--radius-md);
+  pointer-events: none;
 }
 
 @theme inline {
@@ -40,9 +84,10 @@ body {
   color: var(--foreground);
 
   @variant sm {
+    /* Gradient lighting effect using theme variables */
     background-image: linear-gradient(
       to bottom right,
-      #f8f8f8,
+      rgba(var(--lighting-color), var(--lighting-opacity)),
       var(--background) 20%
     );
     background-repeat: no-repeat;
@@ -52,4 +97,15 @@ body {
 svg {
   display: block;
   flex-shrink: 0;
+}
+/* CodeMirror dark theme overrides */
+html.dark .cm-editor {
+  background-color: var(--color-screen) !important;
+}
+html.dark .cm-editor .cm-content {
+  color: var(--color-foreground) !important;
+}
+html.dark .cm-editor .cm-gutters {
+  background-color: var(--color-screen) !important;
+  color: var(--color-foreground) !important;
 }

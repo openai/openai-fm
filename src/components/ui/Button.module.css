@@ -8,7 +8,7 @@
     flex: 1;
     border-radius: var(--radius-md);
     padding: 12px;
-    background: #f4f4f4;
+    background: var(--color-screen);
     box-shadow: rgb(255, 255, 255) 1px 1px 1px 0px inset,
       rgba(0, 0, 0, 0.15) -1px -1px 1px 0px inset,
       rgba(0, 0, 0, 0.26) 0.444584px 0.444584px 0.628737px -1px,
@@ -20,6 +20,32 @@
     transition: box-shadow 0.3s ease;
     cursor: pointer;
     user-select: none;
+    position: relative;
+    /* Per-button variables for lighting: base brightness and edge opacity */
+    --lighting-brightness: 1;
+    --lighting-edge: 1;
+    /* Filter brightness = mix(global brightness (1) and per-element computed brightness) */
+    /* Blend distance-based brightness with global lighting scale */
+    filter: brightness(
+      calc(
+        var(--lighting-brightness) * (1 - var(--lighting-scale)) +
+        1 * var(--lighting-scale)
+      )
+    );
+  }
+  /* Top-left reflective highlight based on lighting */
+  .Button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(100% - 1px);
+    height: calc(100% - 1px);
+    /* Border highlight opacity based on distance and global slider */
+    border-top: 1px solid rgba(var(--lighting-color), calc(var(--lighting-edge) * var(--lighting-scale)));
+    border-left: 1px solid rgba(var(--lighting-color), calc(var(--lighting-edge) * var(--lighting-scale)));
+    border-radius: inherit;
+    pointer-events: none;
   }
 
   .Button[data-block] {
@@ -64,8 +90,9 @@
 
   /* Secondary */
   .Button[data-color="secondary"] {
-    color: #fff;
-    background: #222;
+    /* Contrast uses inverted base colors */
+    color: var(--color-background);
+    background: var(--color-foreground);
     box-shadow: inset 1px 1px 1px #ffffffb3, inset -1px -1px 1px #0000003b,
       0.444584px 0.444584px 0.628737px -0.75px #00000042,
       1.21072px 1.21072px 1.71222px -1.5px #0000003f,
@@ -86,8 +113,9 @@
 
   /* Tertiary */
   .Button[data-color="tertiary"] {
-    color: #fff;
-    background: #6a6a6a;
+    /* Subtle accent using semi-transparent base */
+    color: var(--color-background);
+    background: var(--color-black-50);
     box-shadow: inset 1px 1px 1px #ffffffba, inset -1px -1px 1px #0000003b,
       0.444584px 0.444584px 0.628737px -1px #00000042,
       1.21072px 1.21072px 1.71222px -1.5px #0000003f,
@@ -108,8 +136,9 @@
 
   /* Neutral */
   .Button[data-color="neutral"] {
-    color: #fff;
-    background: #aaa;
+    /* Low-contrast neutral: use foreground for icon/text clarity */
+    color: var(--color-foreground);
+    background: var(--color-black-10);
     box-shadow: inset 1px 1px 1px #ffffffc2, inset -1px -1px 1px #0000003b,
       0.444584px 0.444584px 0.628737px -1px #00000042,
       1.21072px 1.21072px 1.71222px -1.5px #0000003f,
