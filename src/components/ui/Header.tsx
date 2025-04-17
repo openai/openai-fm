@@ -2,6 +2,9 @@ import { useAudioClip } from "@/hooks/useAudioClip";
 import { Switcher } from "./Switcher";
 import clsx from "clsx";
 import { External } from "./Icons";
+import { useState, useEffect } from "react";
+import { Switch } from "radix-ui";
+import sSwitcher from "./Switcher.module.css";
 
 interface HeaderProps {
   devMode: boolean;
@@ -10,6 +13,39 @@ interface HeaderProps {
 
 export const Header = ({ devMode, setDevMode }: HeaderProps) => {
   const playToggle = useAudioClip("/click.wav");
+  // Theme state: 'light' or 'dark'
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  // Initialize theme from localStorage or OS preference
+  useEffect(() => {
+    const stored = localStorage.getItem("theme");
+    if (stored === "dark" || stored === "light") {
+      setTheme(stored);
+    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      setTheme("dark");
+    }
+  }, []);
+  // Lighting scale slider state (0-100)
+  const [lighting, setLighting] = useState<number>(100);
+  useEffect(() => {
+    const rootStyles = getComputedStyle(document.documentElement);
+    const init = parseFloat(rootStyles.getPropertyValue('--lighting-scale')) || 1;
+    setLighting(init * 100);
+  }, []);
+  const handleLightingChange = (val: number) => {
+    const scale = val / 100;
+    document.documentElement.style.setProperty('--lighting-scale', scale.toString());
+    setLighting(val);
+  };
+  // Apply theme class to <html> and persist choice
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   return (
     <header className="flex w-full max-w-(--page-max-width) mx-auto mb-12 md:mb-8">
@@ -51,12 +87,45 @@ export const Header = ({ devMode, setDevMode }: HeaderProps) => {
           </div>
         </div>
         <div className="col-span-10 md:col-span-3 xl:col-span-4 flex justify-end items-start order-2 md:order-3">
-          <div className="relative -top-[0.57rem]">
+          <div className="relative -top-[0.57rem] flex items-center space-x-4">
             <Switcher
               checked={devMode}
               onChange={(checked) => setDevMode(checked)}
               id="dev-mode"
             />
+            {/* Theme toggle */}
+            <div className="flex items-center cursor-pointer hover:text-current/70 transition-colors">
+              <label
+                className="pr-3 leading-none uppercase cursor-pointer"
+                htmlFor="theme-toggle"
+              >
+                {theme === "dark" ? '🌙' : '☀️'}
+              </label>
+              <Switch.Root
+                id="theme-toggle"
+                className={sSwitcher.Track}
+                checked={theme === "dark"}
+                onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+              >
+                <Switch.Thumb className={sSwitcher.Thumb} />
+              </Switch.Root>
+            </div>
+            {/* Lighting slider */}
+            <div className="flex items-center space-x-2">
+              <label htmlFor="lighting-slider" className="leading-none cursor-pointer">
+                🔆
+              </label>
+              <input
+                id="lighting-slider"
+                type="range"
+                min={0}
+                max={100}
+                value={lighting}
+                onChange={(e) => handleLightingChange(Number(e.target.value))}
+                className="w-24 h-1 bg-screen rounded-lg appearance-none cursor-pointer"
+                style={{ accentColor: 'var(--primary)' }}
+              />
+            </div>
           </div>
         </div>
       </div>

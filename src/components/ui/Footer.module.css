@@ -5,7 +5,8 @@
   left: 0;
   z-index: 20;
   border-top: 1px solid transparent;
-  background: #ececec70;
+  /* Solid background respects theme background variable */
+  background: var(--background);
   backdrop-filter: blur(2rem);
   -webkit-backdrop-filter: blur(2rem);
   font-size: 1.125rem;
@@ -13,7 +14,8 @@
 }
 
 [data-scrollable="true"] .Footer {
-  border-top: 1px solid #fff;
+  /* Border adapts to theme contrast */
+  border-top: 1px solid var(--color-black-50);
 }
 
 @keyframes wave {
