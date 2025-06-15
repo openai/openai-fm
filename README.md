@@ -3,6 +3,7 @@
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 ![NextJS](https://img.shields.io/badge/Built_with-NextJS-blue)
 ![OpenAI API](https://img.shields.io/badge/Powered_by-OpenAI_API-orange)
+[![DEMO-FIRST-WF](https://github.com/DucThuy2000/openai-fm/actions/workflows/demo-first-wf.yml/badge.svg?branch=main)](https://github.com/DucThuy2000/openai-fm/actions/workflows/demo-first-wf.yml)
 
 [OpenAI.fm](https://openai.fm) is an interactive demo to showcase the new OpenAI text-to-speech models.
 It is built with NextJS and the [Speech API](https://platform.openai.com/docs/api-reference/audio/createSpeech).
@@ -64,26 +65,6 @@ For more information about text-to-speech using the OpenAI API, check out our [d
 
 > [!NOTE]  
 > Be aware that if you deploy this app to a public server, you are responsible for any usage it may incur using your OpenAI API key.
-
-## Contributors
-
-### OpenAI team
-
-- [Tyler Smith](https://github.com/tylersmith-openai)
-- [Karolis Kosas](https://github.com/karoliskosas)
-- [Justin Jay Wang](https://github.com/justinjaywang)
-- [Bobby Stocker](https://github.com/stocker-openai)
-- [Jeff Harris](https://github.com/jeffsharris)
-- [Romain Huet](https://github.com/romainhuet)
-- [David Weedon](https://github.com/weedon-openai)
-- [Iaroslav Tverdokhlib](https://github.com/itv-openai)
-- [Adam Walker](https://github.com/awalker-openai)
-- [Edwin Arbus](https://x.com/edwinarbus)
-- [Katia Gil Guzman](https://github.com/katia-openai)
-
-### Contributing
-
-You are welcome to open issues or submit PRs to improve this app, however, please note that we may not review all suggestions.
 
 ## License
 
