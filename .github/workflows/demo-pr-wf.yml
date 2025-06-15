@@ -1,0 +1,14 @@
+name: DEMO-PR-WORKFLOW
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  demo-pr-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Say hello from PR
+        run: echo "Hello from the pull request!"
