@@ -54,6 +54,7 @@ export default function PlayButton() {
       .map(() => Math.random() * 0.06);
 
   const handleSubmit = async () => {
+    console.log("on submit");
     const { input, prompt, voice } = appStore.getState();
 
     if (audioLoading) return;
