@@ -70,6 +70,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const ua = userAgent(req);
+  console.log(ua, "ua");
   const response_format = ua.engine?.name === "Blink" ? "wav" : "mp3";
 
   const formData = await req.formData();
