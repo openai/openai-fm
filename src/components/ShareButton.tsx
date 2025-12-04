@@ -5,11 +5,13 @@ import { appStore } from "@/lib/store";
 import { Share } from "./ui/Icons";
 import { Button } from "./ui/Button";
 import ShareDialog from "./ShareDialog";
+import { useI18n } from "@/hooks/useI18n";
 
 export const ShareButton = () => {
   const { copied, trigger } = useCopiedDelay();
   const [open, setOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const { t } = useI18n();
   const handleShare = async () => {
     const { input, prompt, voice } = appStore.getState();
 
@@ -22,7 +24,7 @@ export const ShareButton = () => {
         body: JSON.stringify({ input, prompt, voice }),
       });
       if (!res.ok) {
-        alert("Error sharing. Please try again.");
+        alert(t("shareError"));
         return;
       }
       const data = await res.json();
@@ -34,7 +36,7 @@ export const ShareButton = () => {
       setOpen(true);
     } catch (err) {
       console.error("Error creating share link:", err);
-      alert("Error creating share link. Please try again.");
+      alert(t("shareCreateError"));
     }
   };
 
@@ -50,7 +52,7 @@ export const ShareButton = () => {
       >
         <span className="flex gap-2 items-center justify-center">
           <Share />
-          <span className="uppercase hidden md:inline pr-3">Share</span>
+          <span className="uppercase hidden md:inline pr-3">{t("share")}</span>
         </span>
       </Button>
       <ShareDialog shareUrl={shareUrl} open={open} onOpenChange={setOpen} />

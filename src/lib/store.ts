@@ -5,7 +5,10 @@ import {
   DEFAULT_VOICE,
   getLibraryByPrompt,
   getRandomLibrarySet,
+  localizeEntry,
+  LIBRARY,
 } from "./library";
+import { detectLanguage, Language } from "./i18n";
 
 export interface AppState {
   voice: string;
@@ -16,6 +19,7 @@ export interface AppState {
   selectedEntry: LibraryEntry | null;
   librarySet: LibraryEntry[];
   latestAudioUrl: string | null;
+  language: Language;
 }
 
 const INITIAL_STATE: AppState = {
@@ -27,18 +31,23 @@ const INITIAL_STATE: AppState = {
   selectedEntry: null,
   librarySet: [],
   latestAudioUrl: null,
+  language: "en",
 };
 
 class AppStore {
   private store = create(immer(() => INITIAL_STATE));
 
   constructor() {
+    const initialLanguage = detectLanguage();
+    const randomSet = getRandomLibrarySet();
+    const localizedDefault = localizeEntry(randomSet[0], initialLanguage);
+
     this.store.setState((draft) => {
-      const randomSet = getRandomLibrarySet();
       draft.librarySet = randomSet;
       draft.selectedEntry = randomSet[0];
-      draft.input = randomSet[0].input;
-      draft.prompt = randomSet[0].prompt;
+      draft.input = localizedDefault.input;
+      draft.prompt = localizedDefault.prompt;
+      draft.language = initialLanguage;
     });
 
     if (typeof window === "undefined") {
@@ -80,6 +89,28 @@ class AppStore {
       .catch((err) => {
         console.error("Error loading shared params:", err);
       });
+  }
+
+  setLanguage(language: Language) {
+    this.store.setState((draft) => {
+      draft.language = language;
+
+      if (!draft.inputDirty) {
+        const targetEntry =
+          draft.selectedEntry
+            ? LIBRARY[draft.selectedEntry.id]
+            : draft.librarySet[0];
+        if (targetEntry) {
+          const localized = localizeEntry(targetEntry, language);
+          draft.input = localized.input;
+          draft.prompt = localized.prompt;
+        }
+      }
+    });
+
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("openai-fm-language", language);
+    }
   }
 
   useState = this.store;
