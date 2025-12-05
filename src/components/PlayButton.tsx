@@ -3,6 +3,7 @@ import { Play } from "./ui/Icons";
 import { Button } from "./ui/Button";
 import { appStore } from "@/lib/store";
 import s from "./ui/Footer.module.css";
+import { useI18n } from "@/hooks/useI18n";
 
 const IS_SAFARI = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -38,6 +39,7 @@ export default function PlayButton() {
   const [audioLoading, setAudioLoading] = useState(false);
   const [audioLoaded, setAudioLoaded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const { t } = useI18n();
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -180,7 +182,7 @@ export default function PlayButton() {
         <Play />
       )}
       <span className="uppercase hidden md:inline pr-3">
-        {isPlaying ? "Stop" : audioLoading ? "Busy" : "Play"}
+        {isPlaying ? t("stop") : audioLoading ? t("busy") : t("play")}
       </span>
     </Button>
   );

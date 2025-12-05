@@ -4,9 +4,11 @@ import { copyText } from "../lib/copyText";
 import { appStore } from "@/lib/store";
 import { getCodeSnippet } from "@/lib/codeSnippet";
 import { useCopiedDelay } from "@/hooks/useCopiedDelay";
+import { useI18n } from "@/hooks/useI18n";
 
 export const CodeCopyButton = () => {
   const { copied, trigger } = useCopiedDelay();
+  const { t } = useI18n();
 
   const handleCopy = () => {
     if (copied) {
@@ -30,11 +32,14 @@ export const CodeCopyButton = () => {
       {copied ? (
         <span className="h-full flex gap-2 items-center justify-center">
           <Check />
-          <span className="uppercase hidden md:inline pr-3">Copied</span>
+          <span className="uppercase hidden md:inline pr-3">
+            {t("copied")}
+          </span>
         </span>
       ) : (
         <span className="flex gap-2 items-center justify-center">
-          <Copy /> <span className="uppercase hidden md:inline pr-3">Copy</span>
+          <Copy />
+          <span className="uppercase hidden md:inline pr-3">{t("copy")}</span>
         </span>
       )}
     </Button>

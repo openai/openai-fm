@@ -1,10 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   getRandomLibrarySet,
   getRandomVoice,
   LIBRARY,
   VOICES,
+  localizeEntry,
 } from "../lib/library";
 import { Block } from "./ui/Block";
 import { Footer } from "./ui/Footer";
@@ -17,12 +18,32 @@ import { useBodyScrollable } from "@/hooks/useBodyScrollable";
 import { Button, ButtonLED } from "./ui/Button";
 import { appStore } from "@/lib/store";
 import BrowserNotSupported from "./ui/BrowserNotSupported";
+import { Language } from "@/lib/i18n";
+import { useI18n } from "@/hooks/useI18n";
 
 const EXPRESSIVE_VOICES = ["ash", "ballad", "coral", "sage", "verse"];
 
-export default function TtsPage() {
+export default function TtsPage({
+  initialLanguage,
+}: {
+  initialLanguage?: Language;
+}) {
+  useEffect(() => {
+    if (initialLanguage) {
+      document.documentElement.lang = initialLanguage;
+    }
+  }, [initialLanguage]);
+
   const [devMode, setDevMode] = useState(false);
   const isScrollable = useBodyScrollable();
+
+  // Align app language with the route (e.g., /de) without changing the UI chrome.
+  useEffect(() => {
+    if (!initialLanguage) return;
+    if (appStore.getState().language !== initialLanguage) {
+      appStore.setLanguage(initialLanguage);
+    }
+  }, [initialLanguage]);
 
   return (
     <div
@@ -37,6 +58,7 @@ export default function TtsPage() {
 }
 
 const Board = () => {
+  const { t, language } = useI18n();
   const voice = appStore.useState((state) => state.voice);
   const input = appStore.useState((state) => state.input);
   const inputDirty = appStore.useState((state) => state.inputDirty);
@@ -46,34 +68,65 @@ const Board = () => {
   const browserNotSupported = appStore.useState(
     () => !("serviceWorker" in navigator)
   );
+  const selectedLocalized = selectedEntry
+    ? localizeEntry(selectedEntry, language)
+    : null;
+
+  const applyEntryToState = (entry: typeof selectedEntry) => {
+    if (!entry) return;
+    const localized = localizeEntry(entry, language);
+
+    appStore.setState((draft) => {
+      if (!draft.inputDirty) {
+        draft.input = localized.input;
+      }
+      draft.prompt = localized.prompt;
+      draft.selectedEntry = entry;
+      draft.latestAudioUrl = null;
+    });
+  };
+
+  useEffect(() => {
+    if (!inputDirty) {
+      applyEntryToState(selectedEntry ?? librarySet[0] ?? null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
 
   const handleRefreshLibrarySet = () => {
     const nextSet = getRandomLibrarySet();
+    const defaultEntry = localizeEntry(nextSet[0], language);
 
     appStore.setState((draft) => {
       draft.librarySet = nextSet;
 
       // When the user has changes, don't update the script.
       if (!draft.inputDirty) {
-        draft.input = nextSet[0].input;
+        draft.input = defaultEntry.input;
       }
 
-      draft.prompt = nextSet[0].prompt;
+      draft.prompt = defaultEntry.prompt;
       draft.selectedEntry = nextSet[0];
       draft.latestAudioUrl = null;
     });
   };
 
-  const handlePresetSelect = (name: string) => {
-    const entry = LIBRARY[name];
+  const handlePresetSelect = (id: string) => {
+    const entry = LIBRARY[id];
+    if (!entry) return;
+    const localized = localizeEntry(entry, language);
 
     appStore.setState((draft) => {
       // When the user has changes, don't update the script.
       if (!inputDirty) {
-        draft.input = entry.input;
+        draft.input = localized.input;
       }
 
-      draft.prompt = entry.prompt;
+      draft.prompt = localized.prompt;
       draft.selectedEntry = entry;
       draft.latestAudioUrl = null;
     });
@@ -85,10 +138,12 @@ const Board = () => {
         <BrowserNotSupported
           open={browserNotSupported}
           onOpenChange={() => {}}
+          title={t("browserNotSupportedTitle")}
+          description={t("browserNotSupportedBody")}
         />
       )}
       <div className="flex flex-row">
-        <Block title="Voice">
+        <Block title={t("voice")}>
           <div className="grid grid-cols-12 gap-3">
             {VOICES.map((newVoice) => (
               <div
@@ -134,7 +189,7 @@ const Board = () => {
                   });
                 }}
                 className="aspect-4/3 sm:aspect-2/1 lg:aspect-2.5/1 xl:aspect-square max-h-[100px]"
-                aria-label="Select random voice"
+                aria-label={t("randomVoiceAria")}
               >
                 <Shuffle />
               </Button>
@@ -143,19 +198,21 @@ const Board = () => {
         </Block>
       </div>
       <div className="flex flex-col md:flex-row gap-3">
-        <Block title="Vibe">
+        <Block title={t("vibe")}>
           <div className="flex flex-col gap-3">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {librarySet.map((entry) => (
                 <Button
-                  key={entry.name}
+                  key={entry.id}
                   block
                   color="default"
-                  onClick={() => handlePresetSelect(entry.name)}
-                  selected={selectedEntry?.name === entry.name}
+                  onClick={() => handlePresetSelect(entry.id)}
+                  selected={selectedEntry?.id === entry.id}
                   className="aspect-4/3 sm:aspect-2/1 lg:aspect-2.5/1 min-h-[60px] max-h-[100px] flex-col items-start justify-between relative"
                 >
-                  <span className="break-words pr-1">{entry.name}</span>
+                  <span className="break-words pr-1">
+                    {localizeEntry(entry, language).name}
+                  </span>
                   <div className="absolute left-[0.93rem] bottom-[0.93rem]">
                     <ButtonLED />
                   </div>
@@ -166,7 +223,7 @@ const Board = () => {
                 color="neutral"
                 onClick={handleRefreshLibrarySet}
                 className="aspect-4/3 sm:aspect-2/1 lg:aspect-2.5/1 min-h-[60px] max-h-[100px]"
-                aria-label="Generate new list of vibes"
+                aria-label={t("regenerateAria")}
               >
                 <Regenerate />
               </Button>
@@ -188,7 +245,7 @@ const Board = () => {
             />
           </div>
         </Block>
-        <Block title="Script">
+        <Block title={t("script")}>
           <div className="relative flex flex-col h-full w-full">
             <textarea
               id="prompt"
@@ -201,7 +258,7 @@ const Board = () => {
 
                 appStore.setState((draft) => {
                   draft.inputDirty =
-                    !!nextValue && selectedEntry?.input !== nextValue;
+                    !!nextValue && selectedLocalized?.input !== nextValue;
                   draft.input = nextValue;
                   draft.latestAudioUrl = null;
                 });
@@ -213,12 +270,12 @@ const Board = () => {
                 onClick={() => {
                   appStore.setState((draft) => {
                     draft.inputDirty = false;
-                    draft.input = selectedEntry?.input ?? input;
+                    draft.input = selectedLocalized?.input ?? input;
                     draft.latestAudioUrl = null;
                   });
                 }}
               >
-                Reset
+                {t("reset")}
               </span>
             )}
             <span className="absolute bottom-3 right-4 z-10 opacity-30 hidden sm:block">

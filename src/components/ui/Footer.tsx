@@ -6,6 +6,7 @@ import { CodeCopyButton } from "../CodeCopyButton";
 import PlayButton from "../PlayButton";
 import DownloadButton from "../DownloadButton";
 import { ShareButton } from "../ShareButton";
+import { useI18n } from "@/hooks/useI18n";
 
 export const FooterWrapper = ({ children }: { children: ReactNode }) => {
   return (
@@ -32,6 +33,7 @@ export const Footer = ({ devMode }: { devMode: boolean }) => {
 };
 
 const DocsLink = () => {
+  const { t } = useI18n();
   return (
     <Button
       color="tertiary"
@@ -39,7 +41,7 @@ const DocsLink = () => {
     >
       <Docs />
 
-      <span className="uppercase hidden md:inline pr-3">Docs</span>
+      <span className="uppercase hidden md:inline pr-3">{t("docs")}</span>
     </Button>
   );
 };

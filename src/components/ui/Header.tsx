@@ -2,6 +2,7 @@ import { useAudioClip } from "@/hooks/useAudioClip";
 import { Switcher } from "./Switcher";
 import clsx from "clsx";
 import { External } from "./Icons";
+import { useI18n } from "@/hooks/useI18n";
 
 interface HeaderProps {
   devMode: boolean;
@@ -10,6 +11,7 @@ interface HeaderProps {
 
 export const Header = ({ devMode, setDevMode }: HeaderProps) => {
   const playToggle = useAudioClip("/click.wav");
+  const { t } = useI18n();
 
   return (
     <header className="flex w-full max-w-(--page-max-width) mx-auto mb-12 md:mb-8">
@@ -35,8 +37,7 @@ export const Header = ({ devMode, setDevMode }: HeaderProps) => {
         <div className="col-span-12 md:col-span-7 xl:col-span-6 order-3 md:order-2">
           <div className="text-balance">
             <div className="text-current/70 mb-3">
-              An interactive demo for developers to try the new text-to-speech
-              model in the OpenAI API.{" "}
+              {t("headerDescription")}
             </div>
             <a
               className="uppercase hover:text-current/70 transition-colors inline-block"
@@ -44,7 +45,7 @@ export const Header = ({ devMode, setDevMode }: HeaderProps) => {
               target="_blank"
             >
               <span className="flex items-center gap-x-1">
-                Start building
+                {t("startBuilding")}
                 <External className="h-[.93rem] w-[.93rem]" />
               </span>
             </a>
