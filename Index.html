@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Voice Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            resize: vertical;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        select:focus, input[type="range"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .range-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .range-value {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 12px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .status.speaking {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .voice-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .voice-option {
+            padding: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s ease;
+        }
+
+        .voice-option:hover,
+        .voice-option.selected {
+            background: #f8f9ff;
+        }
+
+        .voice-option:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 480px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎙️ AI Voice Generator</h1>
+        
+        <div class="form-group">
+            <label for="textInput">Enter text to speak:</label>
+            <textarea 
+                id="textInput" 
+                placeholder="Type or paste your text here... The quick brown fox jumps over the lazy dog."
+                maxlength="500"
+            >Hello! This is an AI voice generator. Try changing the voice, pitch, and rate to create unique audio experiences.</textarea>
+        </div>
+
+        <div class="controls">
+            <div class="form-group">
+                <label for="voiceSelect">Voice</label>
+                <div class="voice-list" id="voiceSelect"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="rate">Speed</label>
+                <div class="range-group">
+                    <input type="range" id="rate" min="0.5" max="2" step="0.1" value="1">
+                    <span class="range-value" id="rateValue">1.0x</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="pitch">Pitch</label>
+                <div class="range-group">
+                    <input type="range" id="pitch" min="0" max="2" step="0.1" value="1">
+                    <span class="range-value" id="pitchValue">1.0</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn" id="speakBtn">
+            🎤 Speak
+        </button>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        class VoiceGenerator {
+            constructor() {
+                this.synth = window.speechSynthesis;
+                this.currentVoice = null;
+                this.init();
+            }
+
+            init() {
+                this.populateVoices();
+                this.bindEvents();
+                this.synth.onvoiceschanged = () => this.populateVoices();
+            }
+
+            populateVoices() {
+                const voiceList = document.getElementById('voiceSelect');
+                voiceList.innerHTML = '';
+
+                const voices = this.synth.getVoices();
+                
+                voices.forEach((voice, index) => {
+                    const voiceOption = document.createElement('div');
+                    voiceOption.className = 'voice-option';
+                    voiceOption.textContent = `${voice.name} (${voice.lang})`;
+                    voiceOption.dataset.voiceIndex = index;
+                    
+                    if (voice.default) {
+                        voiceOption.classList.add('selected');
+                        this.currentVoice = voice;
+                    }
+                    
+                    voiceOption.addEventListener('click', () => this.selectVoice(index));
+                    voiceList.appendChild(voiceOption);
+                });
+            }
+
+            selectVoice(index) {
+                const voices = this.synth.getVoices();
+                this.currentVoice = voices[index];
+                
+                // Update UI
+                document.querySelectorAll('.voice-option').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                document.querySelector(`[data-voice-index="${index}"]`).classList.add('selected');
+            }
+
+            bindEvents() {
+                const speakBtn = document.getElementById('speakBtn');
+                const rateSlider = document.getElementById('rate');
+                const pitchSlider = document.getElementById('pitch');
+                const rateValue = document.getElementById('rateValue');
+                const pitchValue = document.getElementById('pitchValue');
+                const textInput = document.getElementById('textInput');
+
+                speakBtn.addEventListener('click', () => this.speak());
+                
+                rateSlider.addEventListener('input', (e) => {
+                    rateValue.textContent = `${parseFloat(e.target.value).toFixed(1)}x`;
+                });
+                
+                pitchSlider.addEventListener('input', (e) => {
+                    pitchValue.textContent = parseFloat(e.target.value).toFixed(1);
+                });
+
+                // Allow Enter + Shift for new line, Enter alone to speak
+                textInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                        this.speak();
+                    }
+                });
+            }
+
+            speak() {
+                const text = document.getElementById('textInput').value.trim();
+                if (!text) {
+                    this.showStatus('Please enter some text to speak!', 'error');
+                    return;
+                }
+
+                // Cancel any ongoing speech
+                this.synth.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Set parameters
+                utterance.rate = parseFloat(document.getElementById('rate').value);
+                utterance.pitch = parseFloat(document.getElementById('pitch').value);
+                utterance.volume = 1;
+
+                if (this.currentVoice) {
+                    utterance.voice = this.currentVoice;
+                }
+
+                // Event handlers
+                utterance.onstart = () => {
+                    document.getElementById('speakBtn').textContent = '🔴 Speaking...';
+                    document.getElementById('speakBtn').disabled = true;
+                    this.showStatus('🗣️ Speaking...', 'speaking');
+                };
+
+                utterance.onend = () => {
+                    document.getElementById('speakBtn').textContent = '🎤 Speak';
+                    document.getElementById('speakBtn').disabled = false;
+                    this.hideStatus();
+                };
+
+                utterance.onerror = (event) => {
+                    document.getElementById('speakBtn').textContent = '🎤 Speak';
+                    document.getElementById('speakBtn').disabled = false;
+                    this.showStatus(`Error: ${event.error}`, 'error');
+                };
+
+                this.synth.speak(utterance);
+            }
+
+            showStatus(message, type) {
+                const status = document.getElementById('status');
+                status.textContent = message;
+                status.className = `status ${type}`;
+                status.style.display = 'block';
+            }
+
+            hideStatus() {
+                document.getElementById('status').style.display = 'none';
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new VoiceGenerator();
+        });
+
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') {
+                window.speechSynthesis.cancel();
+            }
+        });
+    </script>
+</body>
+</html>
