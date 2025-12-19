@@ -31,4 +31,4 @@
 
 ## Security & Configuration Tips
 - Required env: `OPENAI_API_KEY` for text-to-speech. Sharing features need Postgres connection strings (`POSTGRES_URL`, etc.) as in `.env.example`. Do not commit secrets.
-- Avoid logging API keys or responses that include sensitive data. Validate inputs on API routes to prevent misuse.***
+- Avoid logging API keys or responses that include sensitive data. Validate inputs on API routes to prevent misuse.
