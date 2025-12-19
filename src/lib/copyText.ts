@@ -18,8 +18,7 @@ export async function copyText(
       // Try to use the navigator.clipboard method first
       await navigator.clipboard.writeText(text);
       return true;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+    } catch {
       // If that doesn't work, we continue on to the fallback method below
     }
   }
@@ -41,8 +40,7 @@ export async function copyText(
   let succeeded = false;
   try {
     succeeded = document.execCommand("copy");
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (error) {
+  } catch {
     // Ignore
   }
   container.removeChild(textArea);
