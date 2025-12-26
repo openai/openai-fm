@@ -1,4 +1,9 @@
-# OpenAI.fm
+1. चंद्रयान-3 का लैंडर किसका नाम है?
+A) विक्रम
+B) प्रज्ञान
+C) गगन
+D) आर्यभट्ट
+✅ सही उत्तर: A) विक्रम
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 ![NextJS](https://img.shields.io/badge/Built_with-NextJS-blue)
