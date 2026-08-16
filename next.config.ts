@@ -4,10 +4,10 @@ const IS_DEV = process.env.NODE_ENV !== "production";
 
 const CSP = [
   "default-src 'self';",
-  "script-src 'self' 'unsafe-eval' 'unsafe-inline' ;",
+  "script-src 'self' 'unsafe-eval' 'unsafe-inline';",
   "connect-src 'self';",
   "style-src 'self' 'unsafe-inline';",
-  "img-src 'self'",
+  "img-src 'self';",
   "object-src 'none';",
   "frame-ancestors 'none';",
   IS_DEV ? null : "upgrade-insecure-requests;",
