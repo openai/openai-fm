@@ -92,15 +92,24 @@ export default function DownloadButton() {
       form.append("generation", crypto.randomUUID());
       form.append("vibe", vibe);
 
-      const res = await fetch("/api/generate", { method: "POST", body: form });
-      const blob = await res.blob();
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setLoading(false);
+      try {
+        const res = await fetch("/api/generate", { method: "POST", body: form });
+        if (!res.ok) {
+          throw new Error(`Audio generation failed (${res.status})`);
+        }
+        const blob = await res.blob();
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (err) {
+        console.error("Error downloading audio:", err);
+        alert("Error generating audio. Please try again.");
+      } finally {
+        setLoading(false);
+      }
       return;
     }
 
