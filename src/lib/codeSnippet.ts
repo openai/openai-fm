@@ -47,17 +47,25 @@ const response = await openai.audio.speech.create({
 
 await playAudio(response);
 `;
-    case "curl":
+    case "curl": {
+      const payload = JSON.stringify(
+        {
+          model: "gpt-4o-mini-tts",
+          voice,
+          input,
+          instructions: prompt,
+          response_format: "wav",
+        },
+        null,
+        2
+      );
+      // Close the shell string, quote the apostrophe, then reopen the string.
+      const quotedPayload = `'${payload.replace(/'/g, "'\"'\"'")}'`;
       return `curl https://api.openai.com/v1/audio/speech \
 -H "Authorization: Bearer $OPENAI_API_KEY" \
 -H "Content-Type: application/json" \
--d '{
-  "model": "gpt-4o-mini-tts",
-  "voice": "${voice}",
-  "input": ${JSON.stringify(input)},
-  "instructions": ${JSON.stringify(prompt)},
-  "response_format": "wav"
-}' | ffplay -i -`;
+-d ${quotedPayload} | ffplay -i -`;
+    }
     default:
       return "";
   }
